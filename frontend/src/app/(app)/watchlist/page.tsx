@@ -1,0 +1,159 @@
+"use client";
+
+import { useState } from "react";
+import { Plus, Copy, Check, Trash2 } from "lucide-react";
+import { Topbar } from "@/src/components/dashboard/topbar";
+import { StatusBadge } from "@/src/components/dashboard/status-badge";
+import { Button } from "@/src/components/ui/button";
+import {
+  watchlist as initialWatchlist,
+  chainColors,
+  timeAgo,
+  type WatchedContract,
+} from "@/src/lib/mock-data";
+
+function shorten(addr: string) {
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+export default function WatchlistPage() {
+  const [items, setItems] = useState<WatchedContract[]>(initialWatchlist);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  function copy(addr: string) {
+    navigator.clipboard?.writeText(addr);
+    setCopied(addr);
+    setTimeout(() => setCopied(null), 1500);
+  }
+
+  function toggle(id: string) {
+    setItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, active: !i.active } : i))
+    );
+  }
+
+  function remove(id: string) {
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }
+
+  const activeCount = items.filter((i) => i.active).length;
+
+  return (
+    <>
+      <Topbar
+        title="Watchlist"
+        description="Contracts and addresses Notify-Chain is indexing"
+      />
+
+      <div className="flex-1 space-y-6 p-4 md:p-6">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            <span className="text-foreground">{activeCount}</span> active ·{" "}
+            {items.length} total
+          </p>
+          <Button>
+            <Plus className="size-4" />
+            Add contract
+          </Button>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="hidden grid-cols-[1.6fr_1fr_1.4fr_0.7fr_0.6fr] gap-4 border-b border-border px-5 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground lg:grid">
+            <span>Contract</span>
+            <span>Type</span>
+            <span>Tracked events</span>
+            <span className="text-right">Events today</span>
+            <span className="text-right">Actions</span>
+          </div>
+
+          <ul className="divide-y divide-border">
+            {items.map((c) => (
+              <li
+                key={c.id}
+                className="grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-secondary/30 lg:grid-cols-[1.6fr_1fr_1.4fr_0.7fr_0.6fr] lg:items-center lg:gap-4"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: chainColors[c.chain] }}
+                    title={c.chain}
+                  />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate font-medium">{c.name}</p>
+                      <StatusBadge
+                        tone={c.active ? "success" : "muted"}
+                        label={c.active ? "active" : "paused"}
+                      />
+                    </div>
+                    <button
+                      onClick={() => copy(c.address)}
+                      className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {shorten(c.address)}
+                      {copied === c.address ? (
+                        <Check className="size-3 text-primary" />
+                      ) : (
+                        <Copy className="size-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-sm text-muted-foreground">{c.type}</div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {c.events.map((ev) => (
+                    <span
+                      key={ev}
+                      className="rounded-md border border-border bg-background px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
+                    >
+                      {ev}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="text-sm lg:text-right">
+                  <span className="font-medium">
+                    {c.eventsToday.toLocaleString()}
+                  </span>
+                  <span className="ml-1 text-xs text-muted-foreground lg:hidden">
+                    events today
+                  </span>
+                  <p className="text-xs text-muted-foreground">
+                    added {timeAgo(c.addedAt)}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 lg:justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggle(c.id)}
+                  >
+                    {c.active ? "Pause" : "Resume"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => remove(c.id)}
+                    aria-label="Remove contract"
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {items.length === 0 ? (
+            <div className="px-5 py-16 text-center text-sm text-muted-foreground">
+              No contracts in your watchlist yet.
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
+  );
+}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Geist, Geist_Mono, Anton } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,80 +12,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const anton = Anton({
-  weight: ["400"], // Anton only has one weight
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-anton",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "900"], // Choose the weights you need
-  display: "swap",
-  variable: "--font-dmsans",
-});
-
 export const metadata: Metadata = {
-  title: "PAYMESH",
-  description: "An automated group payment on stellar",
+  title: {
+    default: "Notify-Chain — Track and react to on-chain events",
+    template: "%s · Notify-Chain",
+  },
+  description:
+    "A contract + off-chain helper system for tracking and reacting to on-chain events. Monitor contracts, define rules, and route notifications to any channel.",
   keywords: [
-    "decentralized security",
-    "paymesh",
-    "payment",
-    "security",
-    "automated rewards",
-    "trustless",
-    "Web3 payment",
-    "crypto payment",
+    "blockchain",
+    "smart contracts",
+    "event monitoring",
+    "webhooks",
+    "notifications",
+    "web3 infrastructure",
+    "on-chain events",
   ],
   openGraph: {
-    title: "PAYMESH - An automated group payment on stellar",
+    title: "Notify-Chain — Track and react to on-chain events",
     description:
-      "Paymesh automates group payment distribution using Stellar smart contracts. Create a group, set wallet addresses with specific percentages, and any payment sent to your group address automatically splits and distributes funds instantly,",
-    url: "https://paymesh.app",
-    siteName: "paymesh",
-    images: [
-      {
-        url: "https://paymesh.app/logo.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "paymesh - Decentralized Payment Platform",
-      },
-    ],
-    locale: "en_US",
+      "Monitor contracts, define notification rules, and route on-chain events to webhooks, email, Telegram, and Discord.",
+    siteName: "Notify-Chain",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "PAYMESH - An automated group payment on stellar",
-    description:
-      "Paymesh automates group payment distribution using Starknet smart contracts. Create a group, set wallet addresses with specific percentages, and any payment sent to your group address automatically splits and distributes funds instantly,",
-    images: ["https://paymesh.app/logo.jpeg"],
-    creator: "@paymeshglobal",
-  },
-
-  icons: {
-    icon: [
-      { url: "/Group 1.svg" },
-      {
-        url: "/Group 1.svg",
-        sizes: "192x192",
-        type: "image/svg+xml",
-      },
-      {
-        url: "/Group 1.svg",
-        sizes: "512x512",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: [
-      {
-        url: "/Group 1.svg",
-        sizes: "180x180",
-        type: "image/svg+xml",
-      },
-    ],
   },
 };
 
@@ -95,9 +43,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-background">
       <body
-        className={`bg-no-repeat bg-fixed bg h-full bg-cover ${dmSans.variable} ${anton.variable} ${geistSans.variable} ${geistMono.variable} antialiased font-dmsans`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         suppressHydrationWarning={true}
       >
         {children}
