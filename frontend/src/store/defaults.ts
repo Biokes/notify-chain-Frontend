@@ -18,4 +18,12 @@ export const DEFAULT_PREFERENCES: PreferencesState = {
   currencyDisplay: 'USD',
   notificationsEnabled: true,
   soundEnabled: true,
+  categoryPreferences: {
+    defi: true,
+    governance: true,
+    nft: true,
+    transfers: true,
+    bridge: true,
+    custom: true,
+  },
 };

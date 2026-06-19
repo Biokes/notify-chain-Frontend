@@ -33,11 +33,22 @@ export interface UIActions {
 export type Language = 'en' | 'es' | 'fr' | 'de';
 export type CurrencyDisplay = 'USD' | 'EUR' | 'GBP' | 'JPY';
 
+export type NotificationCategory =
+  | 'defi'
+  | 'governance'
+  | 'nft'
+  | 'transfers'
+  | 'bridge'
+  | 'custom';
+
+export type CategoryPreferences = Record<NotificationCategory, boolean>;
+
 export interface PreferencesState {
   language: Language;
   currencyDisplay: CurrencyDisplay;
   notificationsEnabled: boolean;
   soundEnabled: boolean;
+  categoryPreferences: CategoryPreferences;
 }
 
 export interface PreferencesActions {
@@ -45,6 +56,7 @@ export interface PreferencesActions {
   setCurrencyDisplay: (currency: CurrencyDisplay) => void;
   toggleNotifications: () => void;
   toggleSound: () => void;
+  setCategoryEnabled: (category: NotificationCategory, enabled: boolean) => void;
   resetPreferences: () => void;
 }
 

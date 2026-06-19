@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Bell, Radio, Send } from "lucide-react";
+import { Activity, Bell, Radio, Send, Settings2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 const nav = [
@@ -10,6 +10,7 @@ const nav = [
   { href: "/rules", label: "Rules", icon: Bell },
   { href: "/watchlist", label: "Watchlist", icon: Radio },
   { href: "/channels", label: "Channels", icon: Send },
+  { href: "/preferences", label: "Prefs", icon: Settings2 },
 ];
 
 export function MobileNav() {
