@@ -13,6 +13,7 @@ import { Topbar } from "@/src/components/dashboard/topbar";
 import { StatCard } from "@/src/components/dashboard/stat-card";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import { EventVolumeChart } from "@/src/components/dashboard/event-volume-chart";
+import { ChannelMetrics } from "@/src/components/dashboard/channel-metrics";
 import { useUIState } from "@/src/store";
 import {
   events,
@@ -85,6 +86,9 @@ export default function DashboardPage() {
             hint={`${dashboardStats.avgLatencyMs}ms avg latency`}
           />
         </div>
+
+        {/* Notification metrics by delivery channel */}
+        <ChannelMetrics />
 
         {/* Chart */}
         <div className="rounded-xl border border-border bg-card">
