@@ -1,5 +1,13 @@
 import type { StateCreator } from 'zustand';
-import type { AppStore, UIState, UIActions, ViewMode, Theme } from '../types';
+import type {
+  AppStore,
+  UIState,
+  UIActions,
+  ViewMode,
+  Theme,
+  DashboardFilterPreset,
+  ExportStatus,
+} from '../types';
 import { DEFAULT_UI_STATE } from '../defaults';
 
 export const uiSlice: StateCreator<AppStore, [], [], UIState & UIActions> = (set) => ({
@@ -42,6 +50,108 @@ export const uiSlice: StateCreator<AppStore, [], [], UIState & UIActions> = (set
       dashboardSearchQuery: query,
     })),
 
+  saveDashboardFilterPreset: (name: string) =>
+    set((state) => {
+      const now = new Date().toISOString();
+      const preset: DashboardFilterPreset = {
+        id: `preset_${Date.now().toString(36)}_${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        name,
+        dashboardChainFilter: state.dashboardChainFilter,
+        dashboardSearchQuery: state.dashboardSearchQuery,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      return {
+        dashboardFilterPresets: [...state.dashboardFilterPresets, preset],
+      };
+    }),
+
+  updateDashboardFilterPreset: (id: string, name: string) =>
+    set((state) => ({
+      dashboardFilterPresets: state.dashboardFilterPresets.map((preset) =>
+        preset.id === id
+          ? {
+              ...preset,
+              name,
+              updatedAt: new Date().toISOString(),
+            }
+          : preset
+      ),
+    })),
+
+  deleteDashboardFilterPreset: (id: string) =>
+    set((state) => ({
+      dashboardFilterPresets: state.dashboardFilterPresets.filter(
+        (preset) => preset.id !== id
+      ),
+    })),
+
+  applyDashboardFilterPreset: (id: string) =>
+    set((state) => {
+      const preset = state.dashboardFilterPresets.find((item) => item.id === id);
+      if (!preset) return {};
+
+      return {
+        dashboardChainFilter: preset.dashboardChainFilter,
+        dashboardSearchQuery: preset.dashboardSearchQuery,
+      };
+    }),
+
   resetUIState: () =>
-    set(() => DEFAULT_UI_STATE),
+    set((state) => ({
+      ...DEFAULT_UI_STATE,
+      dashboardFilterPresets: state.dashboardFilterPresets,
+    })),
+
+  // Export actions
+  startExport: (job) => {
+    const newJob = {
+      ...job,
+      id: `export_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+      progress: 0,
+      processedItems: 0,
+      startedAt: new Date().toISOString(),
+    };
+    set((state) => ({
+      exportJobs: [...state.exportJobs, newJob],
+    }));
+    return newJob.id;
+  },
+
+  updateExportProgress: (jobId, progress, processedItems, estimatedTimeRemaining) =>
+    set((state) => ({
+      exportJobs: state.exportJobs.map((job) =>
+        job.id === jobId
+          ? { ...job, progress, processedItems, estimatedTimeRemaining }
+          : job
+      ),
+    })),
+
+  updateExportStatus: (jobId, status, error, downloadUrl) =>
+    set((state) => ({
+      exportJobs: state.exportJobs.map((job) =>
+        job.id === jobId
+          ? {
+              ...job,
+              status,
+              error,
+              downloadUrl,
+              completedAt: status === 'completed' || status === 'failed' ? new Date().toISOString() : job.completedAt,
+            }
+          : job
+      ),
+    })),
+
+  removeExportJob: (jobId) =>
+    set((state) => ({
+      exportJobs: state.exportJobs.filter((job) => job.id !== jobId),
+    })),
+
+  clearCompletedExports: () =>
+    set((state) => ({
+      exportJobs: state.exportJobs.filter((job) => job.status !== 'completed' && job.status !== 'failed'),
+    })),
 });

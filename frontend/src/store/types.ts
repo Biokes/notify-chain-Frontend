@@ -2,7 +2,26 @@
  * Type definitions for the global state management store
  */
 
-import type { NotificationChannel, NotificationRule, WatchedContract } from '@/src/lib/mock-data';
+import type { NotificationChannel, NotificationRule, WatchedContract, ChainEvent } from '@/src/lib/mock-data';
+
+// Export Types
+export type ExportStatus = 'idle' | 'preparing' | 'processing' | 'completing' | 'completed' | 'failed';
+export type ExportFormat = 'csv' | 'json' | 'pdf';
+
+export interface ExportJob {
+  id: string;
+  status: ExportStatus;
+  progress: number; // 0-100
+  format: ExportFormat;
+  dataType: 'events' | 'rules' | 'channels' | 'watchlist';
+  totalItems: number;
+  processedItems: number;
+  estimatedTimeRemaining?: number; // in seconds
+  error?: string;
+  startedAt: string;
+  completedAt?: string;
+  downloadUrl?: string;
+}
 
 // UI State Types
 export type ViewMode = 'grid' | 'list';
@@ -16,6 +35,9 @@ export interface UIState {
   // Dashboard filters
   dashboardChainFilter: string;
   dashboardSearchQuery: string;
+  dashboardFilterPresets: DashboardFilterPreset[];
+  // Export jobs
+  exportJobs: ExportJob[];
 }
 
 export interface UIActions {
@@ -26,7 +48,27 @@ export interface UIActions {
   setTheme: (theme: Theme) => void;
   setDashboardChainFilter: (chain: string) => void;
   setDashboardSearchQuery: (query: string) => void;
+  saveDashboardFilterPreset: (name: string) => void;
+  updateDashboardFilterPreset: (id: string, name: string) => void;
+  deleteDashboardFilterPreset: (id: string) => void;
+  applyDashboardFilterPreset: (id: string) => void;
   resetUIState: () => void;
+
+  // Export actions
+  startExport: (job: Omit<ExportJob, 'id' | 'progress' | 'processedItems' | 'startedAt' | 'completedAt' | 'downloadUrl'>) => string;
+  updateExportProgress: (jobId: string, progress: number, processedItems: number, estimatedTimeRemaining?: number) => void;
+  updateExportStatus: (jobId: string, status: ExportStatus, error?: string, downloadUrl?: string) => void;
+  removeExportJob: (jobId: string) => void;
+  clearCompletedExports: () => void;
+}
+
+export interface DashboardFilterPreset {
+  id: string;
+  name: string;
+  dashboardChainFilter: string;
+  dashboardSearchQuery: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Preferences State Types
@@ -78,10 +120,21 @@ export interface DataActions {
   resetData: () => void;
 }
 
-// Combined Store Types
-export interface AppStoreState extends UIState, PreferencesState, DataState {}
+// Wallet State Types
+export interface WalletState {
+  walletAddress: string | null;
+  isWalletConnected: boolean;
+}
 
-export interface AppStore extends AppStoreState, UIActions, PreferencesActions, DataActions {}
+export interface WalletActions {
+  setWalletAddress: (address: string | null) => void;
+  disconnectWallet: () => void;
+}
+
+// Combined Store Types
+export interface AppStoreState extends UIState, PreferencesState, DataState, WalletState {}
+
+export interface AppStore extends AppStoreState, UIActions, PreferencesActions, DataActions, WalletActions {}
 
 // Persistence Config
 export interface PersistenceConfig {

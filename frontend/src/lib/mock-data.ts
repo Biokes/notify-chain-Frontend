@@ -37,6 +37,28 @@ export interface NotificationRule {
   lastTriggered: string | null;
 }
 
+export type NotificationTemplateSnapshot = Pick<
+  NotificationRule,
+  | "name"
+  | "description"
+  | "contract"
+  | "eventSignature"
+  | "chain"
+  | "condition"
+  | "channels"
+  | "status"
+>;
+
+export interface NotificationTemplateVersion {
+  id: string;
+  ruleId: string;
+  version: number;
+  createdAt: string;
+  author: string;
+  summary: string;
+  snapshot: NotificationTemplateSnapshot;
+}
+
 export interface WatchedContract {
   id: string;
   name: string;
@@ -290,6 +312,117 @@ export const rules: NotificationRule[] = [
   },
 ];
 
+export const templateVersions: NotificationTemplateVersion[] = [
+  {
+    id: "ver_rule_01_01",
+    ruleId: "rule_01",
+    version: 1,
+    createdAt: "2026-05-10T09:30:00.000Z",
+    author: "Maya Patel",
+    summary: "Initial alert template for high-value USDC transfers.",
+    snapshot: {
+      name: "Large USDC transfers",
+      description: "Alert when a single USDC transfer exceeds $1M",
+      contract: "USDC",
+      eventSignature: "Transfer(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "value > 1,000,000",
+      channels: ["webhook"],
+      status: "active",
+    },
+  },
+  {
+    id: "ver_rule_01_02",
+    ruleId: "rule_01",
+    version: 2,
+    createdAt: "2026-05-18T14:10:00.000Z",
+    author: "Maya Patel",
+    summary: "Added Telegram delivery for the trading team.",
+    snapshot: {
+      name: "Large USDC transfers",
+      description: "Alert when a single USDC transfer exceeds $1M",
+      contract: "USDC",
+      eventSignature: "Transfer(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "value > 1,000,000",
+      channels: ["webhook", "telegram"],
+      status: "active",
+    },
+  },
+  {
+    id: "ver_rule_01_03",
+    ruleId: "rule_01",
+    version: 3,
+    createdAt: "2026-06-02T08:45:00.000Z",
+    author: "Omar Hassan",
+    summary: "Expanded the description and tightened the wording.",
+    snapshot: {
+      name: "Large USDC transfers",
+      description: "Alert when a single USDC transfer exceeds $1,000,000",
+      contract: "USDC",
+      eventSignature: "Transfer(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "value >= 1,000,000",
+      channels: ["webhook", "telegram"],
+      status: "active",
+    },
+  },
+  {
+    id: "ver_rule_01_04",
+    ruleId: "rule_01",
+    version: 4,
+    createdAt: "2026-06-14T16:25:00.000Z",
+    author: "Maya Patel",
+    summary: "Current live version after a short review pass.",
+    snapshot: {
+      name: "Large USDC transfers",
+      description: "Alert when a single USDC transfer exceeds $1M",
+      contract: "USDC",
+      eventSignature: "Transfer(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "value > 1,000,000",
+      channels: ["webhook", "telegram"],
+      status: "active",
+    },
+  },
+  {
+    id: "ver_rule_02_01",
+    ruleId: "rule_02",
+    version: 1,
+    createdAt: "2026-05-12T12:00:00.000Z",
+    author: "Maya Patel",
+    summary: "Base liquidation alert template.",
+    snapshot: {
+      name: "Aave liquidations",
+      description: "Notify on every liquidation call in the Aave v3 pool",
+      contract: "Aave Pool",
+      eventSignature: "LiquidationCall(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "any",
+      channels: ["email"],
+      status: "active",
+    },
+  },
+  {
+    id: "ver_rule_02_02",
+    ruleId: "rule_02",
+    version: 2,
+    createdAt: "2026-06-08T10:15:00.000Z",
+    author: "Samir Khan",
+    summary: "Restored Discord delivery for the risk team.",
+    snapshot: {
+      name: "Aave liquidations",
+      description: "Notify on every liquidation call in the Aave v3 pool",
+      contract: "Aave Pool",
+      eventSignature: "LiquidationCall(address,address,uint256)",
+      chain: "Ethereum",
+      condition: "any",
+      channels: ["discord", "email"],
+      status: "active",
+    },
+  },
+];
+
 export const watchlist: WatchedContract[] = [
   {
     id: "wc_01",
@@ -435,6 +568,38 @@ export const channelLabels: Record<ChannelType, string> = {
   telegram: "Telegram",
   discord: "Discord",
 };
+
+// Notification delivery channels — the surfaces a notification can be sent on.
+// Distinct from NotificationChannel (a configured destination); these are the
+// aggregate per-channel delivery metrics surfaced on the dashboard.
+export type DeliveryChannel = "email" | "sms" | "push" | "in-app";
+
+export interface ChannelMetric {
+  channel: DeliveryChannel;
+  successful: number;
+  failed: number;
+}
+
+export const deliveryChannelLabels: Record<DeliveryChannel, string> = {
+  email: "Email",
+  sms: "SMS",
+  push: "Push",
+  "in-app": "In-App",
+};
+
+export const DELIVERY_CHANNELS: DeliveryChannel[] = [
+  "email",
+  "sms",
+  "push",
+  "in-app",
+];
+
+export const channelMetrics: ChannelMetric[] = [
+  { channel: "email", successful: 1_284_900, failed: 4_120 },
+  { channel: "sms", successful: 642_300, failed: 8_840 },
+  { channel: "push", successful: 2_481_500, failed: 15_240 },
+  { channel: "in-app", successful: 318_420, failed: 910 },
+];
 
 export function timeAgo(iso: string | null): string {
   if (!iso) return "never";
