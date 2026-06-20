@@ -9,8 +9,6 @@ export type ChannelType = "webhook" | "email" | "telegram" | "discord";
 
 export type RuleStatus = "active" | "paused";
 
-export type RuleCategory = "defi" | "governance" | "nft" | "transfers" | "bridge" | "custom";
-
 export interface ChainEvent {
   id: string;
   contract: string;
@@ -35,7 +33,6 @@ export interface NotificationRule {
   condition: string;
   channels: ChannelType[];
   status: RuleStatus;
-  category: RuleCategory;
   triggered24h: number;
   lastTriggered: string | null;
 }
@@ -223,7 +220,6 @@ export const rules: NotificationRule[] = [
     condition: "value > 1,000,000",
     channels: ["webhook", "telegram"],
     status: "active",
-    category: "transfers",
     triggered24h: 42,
     lastTriggered: new Date(Date.now() - 1000 * 28).toISOString(),
   },
@@ -237,7 +233,6 @@ export const rules: NotificationRule[] = [
     condition: "any",
     channels: ["discord", "email"],
     status: "active",
-    category: "defi",
     triggered24h: 11,
     lastTriggered: new Date(Date.now() - 1000 * 64).toISOString(),
   },
@@ -251,7 +246,6 @@ export const rules: NotificationRule[] = [
     condition: "amountUSD > 500,000",
     channels: ["webhook"],
     status: "active",
-    category: "defi",
     triggered24h: 7,
     lastTriggered: new Date(Date.now() - 1000 * 119).toISOString(),
   },
@@ -265,7 +259,6 @@ export const rules: NotificationRule[] = [
     condition: "any",
     channels: ["telegram", "discord"],
     status: "active",
-    category: "governance",
     triggered24h: 2,
     lastTriggered: new Date(Date.now() - 1000 * 905).toISOString(),
   },
@@ -279,7 +272,6 @@ export const rules: NotificationRule[] = [
     condition: "price > 50 ETH",
     channels: ["webhook", "email"],
     status: "paused",
-    category: "nft",
     triggered24h: 0,
     lastTriggered: new Date(Date.now() - 1000 * 60 * 60 * 9).toISOString(),
   },
@@ -293,7 +285,6 @@ export const rules: NotificationRule[] = [
     condition: "amount > 50,000",
     channels: ["webhook"],
     status: "active",
-    category: "bridge",
     triggered24h: 19,
     lastTriggered: new Date(Date.now() - 1000 * 488).toISOString(),
   },
@@ -456,13 +447,4 @@ export function timeAgo(iso: string | null): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
-}
-
-export function filterRulesByPreferences(
-  rules: NotificationRule[],
-  categoryPreferences: Record<string, boolean>,
-  notificationsEnabled: boolean
-): NotificationRule[] {
-  if (!notificationsEnabled) return [];
-  return rules.filter((rule) => categoryPreferences[rule.category] !== false);
 }

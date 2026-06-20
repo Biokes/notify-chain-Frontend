@@ -47,7 +47,6 @@ export const useAppStore = create<AppStore>()(
           currencyDisplay: state.currencyDisplay,
           notificationsEnabled: state.notificationsEnabled,
           soundEnabled: state.soundEnabled,
-          categoryPreferences: state.categoryPreferences,
           channels: state.channels,
           rules: state.rules,
           watchlist: state.watchlist,
@@ -113,12 +112,10 @@ export function usePreferences<T>(selector?: (state: AppStore) => T): T | AppSto
     currencyDisplay: state.currencyDisplay,
     notificationsEnabled: state.notificationsEnabled,
     soundEnabled: state.soundEnabled,
-    categoryPreferences: state.categoryPreferences,
     setLanguage: state.setLanguage,
     setCurrencyDisplay: state.setCurrencyDisplay,
     toggleNotifications: state.toggleNotifications,
     toggleSound: state.toggleSound,
-    setCategoryEnabled: state.setCategoryEnabled,
     resetPreferences: state.resetPreferences,
   }))) as (state: AppStore) => T | AppStore;
   return useAppStore(sel);
@@ -159,4 +156,4 @@ export function useData<T>(selector?: (state: AppStore) => T): T | AppStore {
   return useAppStore(sel);
 }
 
-export type { AppStore, UIState, UIActions, PreferencesState, PreferencesActions, DataState, DataActions, NotificationCategory, CategoryPreferences } from './types';
+export type { AppStore, UIState, UIActions, PreferencesState, PreferencesActions, DataState, DataActions } from './types';

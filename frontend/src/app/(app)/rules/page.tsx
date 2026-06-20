@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Zap, X, ChevronRight, Settings2 } from "lucide-react";
-import Link from "next/link";
+import { Plus, Zap, X, ChevronRight } from "lucide-react";
 import { Topbar } from "@/src/components/dashboard/topbar";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import {
@@ -10,26 +9,19 @@ import {
   channelIcons,
 } from "@/src/components/dashboard/channel-icon";
 import { Button } from "@/src/components/ui/button";
-import { useData, useAppStore } from "@/src/store";
+import { useData } from "@/src/store";
 import {
   channelLabels,
   timeAgo,
-  filterRulesByPreferences,
   type ChannelType,
 } from "@/src/lib/mock-data";
 
 export default function RulesPage() {
   const rules = useData((state) => state.rules);
   const toggleRule = useData((state) => state.toggleRule);
-  const notificationsEnabled = useAppStore((s) => s.notificationsEnabled);
-  const categoryPreferences = useAppStore((s) => s.categoryPreferences);
   const [showForm, setShowForm] = useState(false);
 
-  // Apply category + global preferences before display/dispatch
-  const visibleRules = filterRulesByPreferences(rules, categoryPreferences, notificationsEnabled);
-  const blockedCount = rules.length - visibleRules.length;
-
-  const activeCount = visibleRules.filter((r) => r.status === "active").length;
+  const activeCount = rules.filter((r) => r.status === "active").length;
 
   return (
     <>
@@ -42,15 +34,7 @@ export default function RulesPage() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             <span className="text-foreground">{activeCount}</span> active ·{" "}
-            {visibleRules.length} total
-            {blockedCount > 0 && (
-              <span className="ml-2 text-muted-foreground">
-                · {blockedCount} hidden by{" "}
-                <Link href="/preferences" className="underline underline-offset-2 hover:text-foreground inline-flex items-center gap-1">
-                  <Settings2 className="size-3" />preferences
-                </Link>
-              </span>
-            )}
+            {rules.length} total
           </p>
           <Button onClick={() => setShowForm((s) => !s)}>
             <Plus className="size-4" />
@@ -58,21 +42,12 @@ export default function RulesPage() {
           </Button>
         </div>
 
-        {!notificationsEnabled && (
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
-            Notifications are globally disabled.{" "}
-            <Link href="/preferences" className="underline underline-offset-2">
-              Enable in Preferences
-            </Link>
-          </div>
-        )}
-
         {showForm ? (
           <NewRuleForm onClose={() => setShowForm(false)} />
         ) : null}
 
         <div className="grid gap-4">
-          {visibleRules.map((rule) => (
+          {rules.map((rule) => (
             <div
               key={rule.id}
               className="rounded-xl border border-border bg-card p-5"

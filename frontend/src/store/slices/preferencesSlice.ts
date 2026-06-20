@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { AppStore, PreferencesState, PreferencesActions, Language, CurrencyDisplay, NotificationCategory } from '../types';
+import type { AppStore, PreferencesState, PreferencesActions, Language, CurrencyDisplay } from '../types';
 import { DEFAULT_PREFERENCES } from '../defaults';
 
 export const preferencesSlice: StateCreator<AppStore, [], [], PreferencesState & PreferencesActions> = (set) => ({
@@ -8,20 +8,23 @@ export const preferencesSlice: StateCreator<AppStore, [], [], PreferencesState &
 
   // Actions
   setLanguage: (language: Language) =>
-    set(() => ({ language })),
+    set(() => ({
+      language,
+    })),
 
   setCurrencyDisplay: (currency: CurrencyDisplay) =>
-    set(() => ({ currencyDisplay: currency })),
+    set(() => ({
+      currencyDisplay: currency,
+    })),
 
   toggleNotifications: () =>
-    set((state) => ({ notificationsEnabled: !state.notificationsEnabled })),
+    set((state) => ({
+      notificationsEnabled: !state.notificationsEnabled,
+    })),
 
   toggleSound: () =>
-    set((state) => ({ soundEnabled: !state.soundEnabled })),
-
-  setCategoryEnabled: (category: NotificationCategory, enabled: boolean) =>
     set((state) => ({
-      categoryPreferences: { ...state.categoryPreferences, [category]: enabled },
+      soundEnabled: !state.soundEnabled,
     })),
 
   resetPreferences: () =>
