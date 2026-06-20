@@ -18,6 +18,7 @@ import { Topbar } from "@/src/components/dashboard/topbar";
 import { StatCard } from "@/src/components/dashboard/stat-card";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import { EventVolumeChart } from "@/src/components/dashboard/event-volume-chart";
+import { DeliveryHeatmap } from "@/src/components/dashboard/delivery-heatmap";
 import { ChannelMetrics } from "@/src/components/dashboard/channel-metrics";
 import { DeliveryTrendsChart } from "@/src/components/dashboard/delivery-trends-chart";
 import { useUIState } from "@/src/store";
@@ -205,6 +206,9 @@ export default function DashboardPage() {
             <EventVolumeChart />
           </div>
         </div>
+
+        {/* Notification activity heatmap — deliveries grouped by hour of day */}
+        <DeliveryHeatmap />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_360px]">
           {/* Delivery trends */}
