@@ -448,3 +448,80 @@ export function timeAgo(iso: string | null): string {
   const d = Math.floor(h / 24);
   return `${d}d ago`;
 }
+
+// ── Delivery Timeline ──────────────────────────────────────────────────────
+
+export type DeliveryStageStatus = "completed" | "processing" | "failed" | "pending";
+
+export interface DeliveryStage {
+  id: string;
+  label: "Created" | "Queued" | "Processing" | "Delivered" | "Failed";
+  status: DeliveryStageStatus;
+  timestamp: string | null; // ISO or null if not yet reached
+  detail?: string;
+}
+
+export interface NotificationDelivery {
+  id: string;
+  eventId: string;
+  eventName: string;
+  contract: string;
+  channel: ChannelType;
+  stages: DeliveryStage[];
+}
+
+function makeTimeline(
+  eventId: string,
+  eventName: string,
+  contract: string,
+  channel: ChannelType,
+  finalStatus: "delivered" | "failed" | "processing",
+  baseMs: number
+): NotificationDelivery {
+  const t = (offset: number) =>
+    new Date(baseMs + offset).toISOString();
+
+  const stageMap: Record<
+    "delivered" | "failed" | "processing",
+    DeliveryStage[]
+  > = {
+    delivered: [
+      { id: "s1", label: "Created",    status: "completed",  timestamp: t(0),     detail: "Event matched rule" },
+      { id: "s2", label: "Queued",     status: "completed",  timestamp: t(120),   detail: "Added to dispatch queue" },
+      { id: "s3", label: "Processing", status: "completed",  timestamp: t(380),   detail: "Payload built and signed" },
+      { id: "s4", label: "Delivered",  status: "completed",  timestamp: t(840),   detail: "200 OK from endpoint" },
+    ],
+    failed: [
+      { id: "s1", label: "Created",    status: "completed",  timestamp: t(0),     detail: "Event matched rule" },
+      { id: "s2", label: "Queued",     status: "completed",  timestamp: t(95),    detail: "Added to dispatch queue" },
+      { id: "s3", label: "Processing", status: "completed",  timestamp: t(310),   detail: "Payload built and signed" },
+      { id: "s4", label: "Failed",     status: "failed",     timestamp: t(620),   detail: "Connection refused after 3 retries" },
+    ],
+    processing: [
+      { id: "s1", label: "Created",    status: "completed",  timestamp: t(0),     detail: "Event matched rule" },
+      { id: "s2", label: "Queued",     status: "completed",  timestamp: t(110),   detail: "Added to dispatch queue" },
+      { id: "s3", label: "Processing", status: "processing", timestamp: t(290),   detail: "Awaiting endpoint response…" },
+      { id: "s4", label: "Delivered",  status: "pending",    timestamp: null },
+    ],
+  };
+
+  return {
+    id: `del_${eventId}`,
+    eventId,
+    eventName,
+    contract,
+    channel,
+    stages: stageMap[finalStatus],
+  };
+}
+
+const now = Date.now();
+
+export const deliveryTimelines: NotificationDelivery[] = [
+  makeTimeline("evt_9f2a", "Transfer",          "USDC",            "webhook",  "delivered",  now - 1000 * 28),
+  makeTimeline("evt_8d71", "LiquidationCall",   "Aave Pool",       "discord",  "delivered",  now - 1000 * 64),
+  makeTimeline("evt_7c40", "Swap",              "Uniswap V3",      "webhook",  "processing", now - 1000 * 119),
+  makeTimeline("evt_5a18", "Submitted",         "Lido stETH",      "email",    "failed",     now - 1000 * 320),
+  makeTimeline("evt_4f93", "DepositInitiated",  "Arbitrum Bridge", "webhook",  "delivered",  now - 1000 * 488),
+  makeTimeline("evt_1c33", "OrdersMatched",     "Blur Marketplace","webhook",  "processing", now - 1000 * 1240),
+];
